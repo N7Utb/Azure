@@ -1,5 +1,6 @@
 .extern start_kernel
-
+.extern task_init
+.extern mm_init
     .section .text.init
     .globl _start
 _start:
@@ -31,8 +32,11 @@ _start:
     addi a0,zero,32
     csrs sie,a0
     la sp, boot_stack_top
+
+    call mm_init
+    call task_init
     j start_kernel
-    # j _traps
+
     .section .bss.stack
     .globl boot_stack
 boot_stack:
