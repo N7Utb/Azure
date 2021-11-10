@@ -1,4 +1,5 @@
 .extern trap_handler
+.extern dummy
 .section .text.entry
 .align 2
 .globl _traps
@@ -86,3 +87,40 @@ _traps:
     # 4. return from trap
     # -----------
     sret
+    .global __dummy
+__dummy:
+    la t0, dummy
+    csrw sepc, t0
+    sret
+    .global __switch_to
+__switch_to:
+    sd ra, 40(a0)
+    sd sp, 48(a0)
+    sd s0, 56(a0)
+    sd s1, 64(a0)
+    sd s2, 72(a0)
+    sd s3, 80(a0)
+    sd s4, 88(a0)
+    sd s5, 96(a0)
+    sd s6, 104(a0)
+    sd s7, 112(a0)
+    sd s8, 120(a0)
+    sd s9, 128(a0)
+    sd s10, 136(a0)
+    sd s11, 142(a0)
+    
+    ld ra, 40(a1)
+    ld sp, 48(a1)
+    ld s0, 56(a1)
+    ld s1, 64(a1)
+    ld s2, 72(a1)
+    ld s3, 80(a1)
+    ld s4, 88(a1)
+    ld s5, 96(a1)
+    ld s6, 104(a1)
+    ld s7, 112(a1)
+    ld s8, 120(a1)
+    ld s9, 128(a1)
+    ld s10, 136(a1)
+    ld s11, 142(a1)
+    ret
