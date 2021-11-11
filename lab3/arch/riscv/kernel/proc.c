@@ -5,6 +5,7 @@
 #include "mm.h"
 #include "rand.h"
 #include "printk.h"
+#include "defs.h"
 extern void __dummy();
 extern void __switch_to(struct task_struct* prev, struct task_struct* next);
 
@@ -16,6 +17,7 @@ void dummy()
     uint64 MOD = 1000000007;
     uint64 auto_inc_local_var = 0;
     int last_counter = -1;
+    printk("dummy\n");
     while (1)
     {
         if (last_counter == -1 || current->counter != last_counter)
@@ -35,7 +37,8 @@ void task_init()
     // 4. 设置 idle 的 pid 为 0
     // 5. 将 current 和 task[0] 指向 idle
     /* YOUR CODE HERE */
-    idle = (struct task_struct *)kalloc(4096);
+    idle = (struct task_struct *)kalloc(PGSIZE);
+
     idle->state = TASK_RUNNING;
     idle->counter = 0;
     idle->priority = 0;
@@ -49,16 +52,17 @@ void task_init()
     /* YOUR CODE HERE */
     for (int i = 1; i < NR_TASKS; i++)
     {
-        task[i] = (struct task_struct *)kalloc(4096);
+        task[i] = (struct task_struct *)kalloc(PGSIZE);
         task[i]->state = TASK_RUNNING;
         task[i]->counter = 0;
         task[i]->priority = rand() % 10 + 1;
-        task[i]->thread.ra = __dummy;
-        task[i]->thread.sp = task[i] + 4096;
+        task[i]->thread.ra = (uint64)__dummy;
+        task[i]->thread.sp = (uint64)task[i] + PGSIZE;
 
     }
 
-    printk("...proc_init done!\n");
+    printk("...proc_init done!%x\n",__dummy);
+    switch_to(task[1]);
 }
 
 void switch_to(struct task_struct* next) {

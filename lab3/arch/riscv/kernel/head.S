@@ -16,17 +16,17 @@ _start:
     csrsi sstatus,2
 
     # set the first time interrupt
-    lui a1,0x0400
-    rdtime a0
-    add a0,a0,a1
-    addi a7,zero,0
-    addi a6,zero,0
-    addi a1,zero,0
-    addi a2,zero,0
-    addi a3,zero,0
-    addi a4,zero,0
-    addi a5,zero,0
-    ecall
+    # lui a1,0x0400
+    # rdtime a0
+    # add a0,a0,a1
+    # addi a7,zero,0
+    # addi a6,zero,0
+    # addi a1,zero,0
+    # addi a2,zero,0
+    # addi a3,zero,0
+    # addi a4,zero,0
+    # addi a5,zero,0
+    # ecall
 
     # set sie[STIE]
     addi a0,zero,32
