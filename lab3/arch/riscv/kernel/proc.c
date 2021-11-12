@@ -7,7 +7,7 @@
 #include "printk.h"
 #include "defs.h"
 extern void __dummy();
-extern void __switch_to(struct task_struct* prev, struct task_struct* next);
+extern void __switch_to(struct task_struct *prev, struct task_struct *next);
 
 struct task_struct *idle;
 struct task_struct *current;
@@ -17,7 +17,6 @@ void dummy()
     uint64 MOD = 1000000007;
     uint64 auto_inc_local_var = 0;
     int last_counter = -1;
-    printk("dummy\n");
     while (1)
     {
         if (last_counter == -1 || current->counter != last_counter)
@@ -55,23 +54,118 @@ void task_init()
         task[i] = (struct task_struct *)kalloc(PGSIZE);
         task[i]->state = TASK_RUNNING;
         task[i]->counter = 0;
-        task[i]->priority = rand() % 10 + 1;
+        task[i]->priority = rand() % PRIORITY_MAX + PRIORITY_MIN;
+        task[i]->pid = i;
         task[i]->thread.ra = (uint64)__dummy;
         task[i]->thread.sp = (uint64)task[i] + PGSIZE;
-
     }
 
-    printk("...proc_init done!%x\n",__dummy);
-    switch_to(task[1]);
+    printk("...proc_init done!%d\n", NR_TASKS);
 }
 
-void switch_to(struct task_struct* next) {
- /* YOUR CODE HERE */
-    if ( current == next )
+void switch_to(struct task_struct *next)
+{
+    struct task_struct *p = current;
+    if (current == next)
+    {
         return;
+    }
     else
     {
-        __switch_to(current, next);
+        current = next;
+        __switch_to(p, next);
+
         return;
+    }
+}
+// SJF
+#ifdef __schedule_SJF
+void schedule(void)
+{
+    struct task_struct *p = task[1];
+    int zero_flag = 0, i;
+    for (i = 1; i < NR_TASKS; i++)
+    {
+        if (task[i]->counter)
+        {
+            break;
+        }
+    }
+    if (i == NR_TASKS)
+    {
+        for (i = 1; i < NR_TASKS; i++)
+        {
+
+            task[i]->counter = rand() % 10 + 1;
+            // printk("task[%d]->counter = %d  ", i, task[i]->counter);
+            // printk("task[%d]->priority = %d\n", i, task[i]->priority);
+            printk("SET [PID = %d PRIORITY = %d COUNTER = %d]\n", i, task[i]->priority, task[i]->counter);
+        }
+    }
+    for (i = 2; i < NR_TASKS; i++)
+    {
+        if (p->counter == 0 || p->state != TASK_RUNNING)
+            p = task[i];
+        else if (task[i]->counter < p->counter && task[i]->state == TASK_RUNNING && task[i]->counter != 0)
+            p = task[i];
+    }
+    switch_to(p);
+    return;
+}
+#else
+void schedule(void)
+{
+    struct task_struct *p = task[1];
+    int zero_flag = 0, i;
+    for (i = 1; i < NR_TASKS; i++)
+    {
+        if (task[i]->counter)
+        {
+            break;
+        }
+    }
+    if (i == NR_TASKS)
+    {
+        for (i = 1; i < NR_TASKS; i++)
+        {
+            task[i]->counter = rand() % 10 + 1;
+            // printk("task[%d]->counter = %d  ", i, task[i]->counter);
+            // printk("task[%d]->priority = %d\n", i, task[i]->priority);
+            printk("SET [PID = %d PRIORITY = %d COUNTER = %d]\n", i, task[i]->priority, task[i]->counter);
+        }
+    }
+    for (i = 2; i < NR_TASKS; i++)
+    {
+        if (p->counter == 0 || p->state != TASK_RUNNING)
+            p = task[i];
+        else if (task[i]->priority >= p->priority && task[i]->state == TASK_RUNNING && task[i]->counter != 0)
+            p = task[i];
+    }
+
+    switch_to(p);
+    return;
+}
+#endif
+// // TODO: priority schedule
+void do_timer(void)
+{
+    /* 1. 如果当前线程是 idle 线程 直接进⾏调度 */
+    /* 2. 如果当前线程不是 idle 对当前线程的运⾏剩余时间减 1
+若剩余时间任然⼤于0 则直接返回 否则进⾏调度 */
+    /* YOUR CODE HERE */
+    if (current == idle)
+    {
+        schedule();
+        return;
+    }
+    else
+    {
+        if (--current->counter)
+            return;
+        else
+        {
+            schedule();
+            return;
+        }
     }
 }

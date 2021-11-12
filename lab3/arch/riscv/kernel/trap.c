@@ -1,5 +1,6 @@
 #include "clock.h"
 #include "printk.h"
+#include "proc.h"
 static int i=0; 
 
 void trap_handler(unsigned long long scause, unsigned long long sepc) { 
@@ -12,6 +13,9 @@ void trap_handler(unsigned long long scause, unsigned long long sepc) {
         printk("[%d] Supervisor Mode Timer Interrupt ", i=(i+1)%3600); 
         printk("Next time: "); 
         clock_set_next_event(); 
+        do_timer();
+        
+
     }
     else {
         ; 
