@@ -66,13 +66,16 @@ void task_init()
 void switch_to(struct task_struct *next)
 {
     struct task_struct *p = current;
+    // current process is the process to be switched
     if (current == next)
     {
         return;
     }
     else
     {
+        // change the current process
         current = next;
+        // switch to the next process
         __switch_to(p, next);
 
         return;
@@ -88,11 +91,13 @@ void schedule(void)
     {
         if (task[i]->counter)
         {
+            // there is a process can be switched
             break;
         }
     }
     if (i == NR_TASKS)
     {
+        // reassign values to counters
         for (i = 1; i < NR_TASKS; i++)
         {
 
@@ -104,6 +109,7 @@ void schedule(void)
     }
     for (i = 2; i < NR_TASKS; i++)
     {
+        // use SJF to pick out the next process
         if (p->counter == 0 || p->state != TASK_RUNNING)
             p = task[i];
         else if (task[i]->counter < p->counter && task[i]->state == TASK_RUNNING && task[i]->counter != 0)
@@ -121,11 +127,13 @@ void schedule(void)
     {
         if (task[i]->counter)
         {
+            // there is a process can be switched
             break;
         }
     }
     if (i == NR_TASKS)
     {
+        // reassign values to counters
         for (i = 1; i < NR_TASKS; i++)
         {
             task[i]->counter = rand() % 10 + 1;
@@ -136,6 +144,7 @@ void schedule(void)
     }
     for (i = 2; i < NR_TASKS; i++)
     {
+        // use priority to pick out the next process
         if (p->counter == 0 || p->state != TASK_RUNNING)
             p = task[i];
         else if (task[i]->priority >= p->priority && task[i]->state == TASK_RUNNING && task[i]->counter != 0)
@@ -146,7 +155,7 @@ void schedule(void)
     return;
 }
 #endif
-// // TODO: priority schedule
+
 void do_timer(void)
 {
     /* 1. 如果当前线程是 idle 线程 直接进⾏调度 */

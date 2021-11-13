@@ -4,7 +4,8 @@
 #define TASK_RUNNING 0    // 为了简化实验，所有的线程都只有⼀种状态
 #define PRIORITY_MIN 1
 #define PRIORITY_MAX 10
-#define __schedule_SJF
+// #define __schedule_SJF
+
 /* ⽤于记录 `线程` 的 `内核栈与⽤户栈指针` */
 /* (lab3中⽆需考虑，在这⾥引⼊是为了之后实验的使⽤) */
 struct thread_info

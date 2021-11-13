@@ -89,11 +89,14 @@ _traps:
     sret
     .global __dummy
 __dummy:
+    # load address
     la t0, dummy
     csrw sepc, t0
+    # return from supervisor mode
     sret
     .global __switch_to
 __switch_to:
+    # save the context of the last trap
     sd ra, 40(a0)
     sd sp, 48(a0)
     sd s0, 56(a0)
@@ -108,7 +111,7 @@ __switch_to:
     sd s9, 128(a0)
     sd s10, 136(a0)
     sd s11, 142(a0)
-    
+    # load the context of the next trap
     ld ra, 40(a1)
     ld sp, 48(a1)
     ld s0, 56(a1)
