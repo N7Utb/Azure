@@ -6,14 +6,18 @@
     .section .text.init
     .globl _start
 _start:
-    # ------------------
-    # - your code here -
-    # ------------------
 
-    # set stvec
+    addi a0,zero,32
+    csrs sie,a0
+    la sp, boot_stack_top
+
+    call setup_vm
+    call relocate
+    call mm_init
+
+
     la a0, _traps
     csrw stvec, a0
-
     # set sstatus[sie]
     csrsi sstatus,2
     # set the first time interrupt
@@ -29,14 +33,8 @@ _start:
     addi a5,zero,0
     ecall
 
-    # set sie[STIE]
-    addi a0,zero,32
-    csrs sie,a0
-    la sp, boot_stack_top
-    call setup_vm
-    call relocate
-    call mm_init
-    # call setup_vm_final
+
+    call setup_vm_final
     call task_init
 
 

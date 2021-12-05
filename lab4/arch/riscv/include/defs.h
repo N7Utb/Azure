@@ -12,7 +12,10 @@
 #define VM_END   (0xffffffff00000000)
 #define VM_SIZE  (VM_END - VM_START)
 #define PA2VA_OFFSET (VM_START - PHY_START)
-#define MASK 15
+#define V_MASK 1
+#define R_MASK 2
+#define W_MASK 4
+#define X_MASK 8
 
 
 #define csr_read(csr)                       \
