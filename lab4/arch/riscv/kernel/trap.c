@@ -10,8 +10,8 @@ void trap_handler(unsigned long long scause, unsigned long long sepc) {
     // `clock_set_next_event()` ⻅ 4.5 节 
     // 其他interrupt / exception 可以直接忽略 # YOUR CODE HERE  
     if (scause == 0x8000000000000005){
-        printk("[%d] Supervisor Mode Timer Interrupt ", i=(i+1)%3600); 
-        printk("Next time: "); 
+        // printk("[%d] Supervisor Mode Timer Interrupt ", i=(i+1)%3600); 
+        // printk("Next time: "); 
         clock_set_next_event(); 
         do_timer();
         

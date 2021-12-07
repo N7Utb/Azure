@@ -4,9 +4,9 @@
 #define PHY_START 0x0000000080000000
 #define PHY_SIZE 128 * 1024 * 1024 // 128MB， QEMU 默认内存⼤⼩
 #define PHY_END (PHY_START + PHY_SIZE)
-#define PGSIZE 0x1000 // 4KB
-#define PGROUNDUP(addr) ((addr + PGSIZE - 1) & (~(PGSIZE - 1)))
-#define PGROUNDDOWN(addr) (addr & (~(PGSIZE - 1)))
+#define PGSIZE 0x0000000000001000 // 4KB
+#define PGROUNDUP(addr) ((unsigned long)(addr + PGSIZE - 1) & (unsigned long)(~(PGSIZE - 1)))
+#define PGROUNDDOWN(addr) ((unsigned long)addr & (unsigned long)(~(PGSIZE - 1)))
 #define OPENSBI_SIZE (0x200000)
 #define VM_START (0xffffffe000000000)
 #define VM_END   (0xffffffff00000000)
@@ -16,6 +16,7 @@
 #define R_MASK 2
 #define W_MASK 4
 #define X_MASK 8
+
 
 
 #define csr_read(csr)                       \

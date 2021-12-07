@@ -3,6 +3,7 @@
 .extern mm_init
 .extern setup_vm_final
 .extern early_pgtbl
+# .extern PA2VA_OFFSET
     .section .text.init
     .globl _start
 _start:
@@ -21,7 +22,8 @@ _start:
     # set sstatus[sie]
     csrsi sstatus,2
     # set the first time interrupt
-    lui a1,0x0400
+    # lui a1,0x0800
+    lui a1,0x0800
     rdtime a0
     add a0,a0,a1
     addi a7,zero,0
@@ -37,18 +39,26 @@ _start:
     call setup_vm_final
     call task_init
 
-
     j start_kernel
 relocate:
-    li t0,0xffffffdf80000000
+    # set ra = ra + PA2VA_OFFSET
+    # set sp = sp + PA2VA_OFFSET (If you have set the sp before)
+    # ld t0, PA2VA_OFFSET
+    li t0, 0xffffffdf80000000
     add ra,ra,t0
     add sp,sp,t0
+
+    # set satp
+    # mode
     li t0, 0x8
     slli t0,t0,60
+    # PPN
     la t1, early_pgtbl
     srli t1,t1,12
     add t0,t0,t1
     csrw satp,t0
+
+    # flush tlb
     sfence.vma zero,zero
     ret
     .section .bss.stack

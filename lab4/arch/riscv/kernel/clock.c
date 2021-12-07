@@ -21,7 +21,7 @@ void clock_set_next_event()
     // 下⼀次 时钟中断 的时间点
     unsigned long next = get_cycles() + TIMECLOCK;
     // 使⽤ sbi_ecall 来完成对下⼀次时钟中断的设置
-	printk("%x\n", next); 
+	// printk("%x\n", next); 
 
     __asm__ volatile(
 		"addi a0, %[next], 0\n"

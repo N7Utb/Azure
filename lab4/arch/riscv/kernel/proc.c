@@ -23,8 +23,7 @@ void dummy()
         {
             last_counter = current->counter;
             auto_inc_local_var = (auto_inc_local_var + 1) % MOD;
-            printk("[PID = %d] is running. auto_inc_local_var = %d\n", current->pid,
-                   auto_inc_local_var);
+            printk("[PID = %d] is running. thread space begin at = %lx\n", current->pid,current);
         }
     }
 }
@@ -73,6 +72,7 @@ void switch_to(struct task_struct *next)
     else
     {
         current = next;
+        printk("\nswitch to [PID = %d COUNTER = %d]\n",current->pid, current->counter);
         __switch_to(p, next);
 
         return;
@@ -97,9 +97,7 @@ void schedule(void)
         {
 
             task[i]->counter = rand() % 10 + 1;
-            // printk("task[%d]->counter = %d  ", i, task[i]->counter);
-            // printk("task[%d]->priority = %d\n", i, task[i]->priority);
-            printk("SET [PID = %d PRIORITY = %d COUNTER = %d]\n", i, task[i]->priority, task[i]->counter);
+            // printk("SET [PID = %d PRIORITY = %d COUNTER = %d]\n", i, task[i]->priority, task[i]->counter);
         }
     }
     for (i = 2; i < NR_TASKS; i++)
