@@ -10,16 +10,21 @@ _start:
 
     addi a0,zero,32
     csrs sie,a0
+
     la sp, boot_stack_top
+
+    
+
 
     call setup_vm
     call relocate
     call mm_init
+    
 
+    # set sstatus[sie]
 
     la a0, _traps
     csrw stvec, a0
-    # set sstatus[sie]
     csrsi sstatus,2
     # set the first time interrupt
     # lui a1,0x0800
@@ -48,6 +53,9 @@ relocate:
     add ra,ra,t0
     add sp,sp,t0
 
+    la t1, aaa
+    add t1,t1,t0
+    csrw stvec,t1
     # set satp
     # mode
     li t0, 0x8
@@ -56,9 +64,10 @@ relocate:
     la t1, early_pgtbl
     srli t1,t1,12
     add t0,t0,t1
+    sfence.vma zero,zero
     csrw satp,t0
-
     # flush tlb
+aaa:
     sfence.vma zero,zero
     ret
     .section .bss.stack

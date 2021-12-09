@@ -18,7 +18,7 @@ void trap_handler(unsigned long long scause, unsigned long long sepc) {
 
     }
     else {
-        ; 
+        printk("123\n\n\n\n\n"); 
     }
     return ;
 }

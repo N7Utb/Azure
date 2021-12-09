@@ -15,7 +15,7 @@ extern char _ekernel[];
 void setup_vm(void)
 {
     early_pgtbl[VM_START >> 30 & 0x1ff] = ((PHY_START >> 30 & 0x3ffffff) << 28) + (V_MASK | R_MASK | W_MASK | X_MASK);
-    early_pgtbl[PHY_START >> 30 & 0x1ff] = ((PHY_START >> 30 & 0x3ffffff) << 28) + (V_MASK | R_MASK | W_MASK | X_MASK);
+    // early_pgtbl[PHY_START >> 30 & 0x1ff] = ((PHY_START >> 30 & 0x3ffffff) << 28) + (V_MASK | R_MASK | W_MASK | X_MASK);
     printk("before: 0x%lx\n", early_pgtbl); 
     // TODO: find a solution that don't need Equivalent mapping
     // ! no hurry
