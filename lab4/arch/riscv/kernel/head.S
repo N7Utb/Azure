@@ -53,6 +53,7 @@ relocate:
     add ra,ra,t0
     add sp,sp,t0
 
+    # set stvec to return to the caller of relocate
     la t1, aaa
     add t1,t1,t0
     csrw stvec,t1

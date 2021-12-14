@@ -63,6 +63,8 @@ void create_mapping(unsigned long* pgtbl, unsigned long va, unsigned long pa, un
         }
         // third level
         addr3[VPN[0]] = (((pa >> 12) + i) << 10) | perm; 
+        if(va == 0xffffffe000200000 || va == 0xffffffe000202000)
+            printk("last address: %lx\n", &addr3[VPN[0]]); 
         occu++; 
         // map next page
         sz -= PGSIZE; 
