@@ -29,10 +29,10 @@ void trap_handler(unsigned long long scause, unsigned long long sepc, struct pt_
     else if(scause == ECALL_FROM_U_MODE){
         switch (regs->reg[17])
         {
-        case 172:
+        case SYS_GETPID:
             regs->reg[10] = getpid();
             break;
-        case 64:
+        case SYS_WRITE:
             regs->reg[10] = write(regs->reg[10],(char *)regs->reg[11],regs->reg[12]);
             break;
         default:

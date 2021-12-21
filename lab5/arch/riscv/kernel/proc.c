@@ -40,6 +40,7 @@ void task_init()
     unsigned long u_stack = 0;
     idle = (struct task_struct *)kalloc(PGSIZE);
 
+    // set idle thread
     idle->state = TASK_RUNNING;
     idle->counter = 0;
     idle->priority = 0;
@@ -58,10 +59,13 @@ void task_init()
         task[i]->thread.sp = (uint64)task[i] + PGSIZE; 
         task[i]->thread.sepc = USER_START;
         task[i]->thread.sstatus = SUM_MASK | SPIE_MASK;
+        // sp of U-mode
         task[i]->thread.sscratch = USER_END;
+        // the address of the copy of swapper_pg_tbl
         task[i]->pgd = (pagetable_t)kalloc(PGSIZE);
         u_stack = (unsigned long)kalloc(PGSIZE);
         printk("task[%d]->pgd = 0x%lx\n",i,task[i]->pgd);
+        // recreate swapper_pg_tbl since there is no memcpy()
         memset(task[i]->pgd,0x0,PGSIZE);
         create_mapping(task[i]->pgd,(unsigned long)_stext,
                         (unsigned long)(_stext - PA2VA_OFFSET),
@@ -85,11 +89,13 @@ void task_init()
                         (unsigned long)( PHY_END -  PGROUNDUP(_ekernel - PA2VA_OFFSET)),
                         W_MASK | R_MASK | V_MASK);       
 
+        // mapping UAPP
         create_mapping(task[i]->pgd,
                        (unsigned long)USER_START,
                        (unsigned long)(uapp_start - PA2VA_OFFSET),
                        (unsigned long)PGROUNDUP(uapp_end - uapp_start),
                        U_MASK | X_MASK  | R_MASK | V_MASK | W_MASK);
+        // mapping the stack of U-mode
         create_mapping(task[i]->pgd,
                        (unsigned long)(USER_END - PGSIZE),
                        (unsigned long)(u_stack - PA2VA_OFFSET - PGSIZE),

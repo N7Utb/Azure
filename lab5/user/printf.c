@@ -116,6 +116,7 @@ static int vprintfmt(void(*putch)(char), const char *fmt, va_list vl) {
                   "mv %0, a0\n"
                   : "+r" (syscall_ret)
                   : "i" (SYS_WRITE), "r" (fd), "r" (&buffer), "r" (tail));
+    
     return syscall_ret;
 }
 

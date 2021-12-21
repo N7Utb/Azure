@@ -4,7 +4,7 @@
 .align 2
 .globl _traps
 _traps:
-    # obviously, the context should save on the kernel stack instead of the user stack
+    # obviously, the context should be saved on the kernel stack instead of the user stack
     # judge whether sscratch == 0
     # the entry is kernel thread, not swap the sscratch and sp
     csrrw sp, sscratch, sp
@@ -106,7 +106,6 @@ __dummy:
     sret
     .global __switch_to
 __switch_to:
-    # TODO: 4.2修改 __switch_to
     sd ra, 40(a0)
     sd sp, 48(a0)
     sd s0, 56(a0)
@@ -121,6 +120,7 @@ __switch_to:
     sd s9, 128(a0)
     sd s10, 136(a0)
     sd s11, 144(a0)
+    # save sepc, sscratch, satp
     csrr t0, sepc
     sd t0, 152(a0)
     csrr t0, sstatus
