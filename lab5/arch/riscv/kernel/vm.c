@@ -1,7 +1,4 @@
-#include "defs.h"
-#include "string.h"
-#include "mm.h"
-#include "printk.h"
+#include "vm.h"
 unsigned long  early_pgtbl[512] __attribute__((__aligned__(0x1000)));
 extern char _stext[];
 extern char _etext[];
@@ -64,7 +61,7 @@ void create_mapping(unsigned long* pgtbl, unsigned long va, unsigned long pa, un
         // map next page
         sz -= PGSIZE; 
     }
-    printk("%lx ^^ %x ^^ done\n", va, occu); 
+    // printk("%lx ^^ %x ^^ done\n", va, occu); 
 }
 void setup_vm_final(void){
     printk("after: 0x%lx\n", early_pgtbl); 

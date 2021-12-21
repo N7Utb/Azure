@@ -1,4 +1,5 @@
 #include "clock.h"
+#include "syscall.h"
 #include "printk.h"
 #include "proc.h"
 
@@ -27,10 +28,19 @@ void trap_handler(unsigned long long scause, unsigned long long sepc, struct pt_
         
     }
     else if(scause == ECALL_FROM_U_MODE){
-        printk("ECALL_FROM_U_MODE is caught\n"); 
+        printk("ECALL_FROM_U_MODE is caught %d\n",regs->reg[17]);
+        switch (regs->reg[17])
+        {
+        case 172:
+            sys_write();
+            break;
+        
+        default:
+            break;
+        }
     }
     else {
-        printk("123\n\n\n\n\n"); 
+        // printk("123\n\n\n\n\n"); 
     }
     return ;
 }

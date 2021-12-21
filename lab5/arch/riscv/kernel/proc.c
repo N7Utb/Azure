@@ -2,13 +2,21 @@
  * created by N7Utb at 2021/11/10
  */
 #include "proc.h"
-#include "mm.h"
 #include "rand.h"
-#include "printk.h"
-#include "defs.h"
+#include "vm.h"
+extern char _stext[];
+extern char _etext[];
+extern char _srodata[];
+extern char _erodata[];
+extern char _sdata[];
+extern char _edata[];
+extern char _sbss[];
+extern char _ebss[];
+extern char _ekernel[];
 extern void __dummy();
 extern void __switch_to(struct task_struct *prev, struct task_struct *next);
-
+extern char uapp_start[];
+extern char uapp_end[];
 struct task_struct *idle;
 struct task_struct *current;
 struct task_struct *task[NR_TASKS];
@@ -32,12 +40,7 @@ void task_init()
     // TODO： 4.2 修改task_init
     // ? uapp_start和uapp_end的值
     // ? 每个用户态进程都同一个虚拟地址？
-    // 1. 调⽤ kalloc() 为 idle 分配⼀个物理⻚
-    // 2. 设置 state 为 TASK_RUNNING;
-    // 3. 由于 idle 不参与调度 可以将其 counter / priority 设置为 0
-    // 4. 设置 idle 的 pid 为 0
-    // 5. 将 current 和 task[0] 指向 idle
-    /* YOUR CODE HERE */
+    unsigned long u_stack = 0;
     idle = (struct task_struct *)kalloc(PGSIZE);
 
     idle->state = TASK_RUNNING;
@@ -46,11 +49,7 @@ void task_init()
     idle->pid = 0;
     current = idle;
     task[0] = idle;
-    // 1. 参考 idle 的设置, 为 task[1] ~ task[NR_TASKS - 1] 进⾏初始化
-    // 2. 其中每个线程的 state 为 TASK_RUNNING, counter 为 0, priority 使⽤ rand() 来设置,pid 为该线程在线程数组中的下标。
-    // 3. 为 task[1] ~ task[NR_TASKS - 1] 设置 `thread_struct` 中的 `ra` 和 `sp`,
-    // 4. 其中 `ra` 设置为 __dummy （⻅ 4.3.2）的地址， `sp` 设置为 该线程申请的物理⻚的⾼地址
-    /* YOUR CODE HERE */
+
     for (int i = 1; i < NR_TASKS; i++)
     {
         task[i] = (struct task_struct *)kalloc(PGSIZE);
@@ -59,7 +58,46 @@ void task_init()
         task[i]->priority = rand() % PRIORITY_MAX + PRIORITY_MIN;
         task[i]->pid = i;
         task[i]->thread.ra = (uint64)__dummy;
-        task[i]->thread.sp = (uint64)task[i] + PGSIZE;
+        task[i]->thread.sp = (uint64)task[i] + PGSIZE; 
+        task[i]->thread.sepc = USER_START;
+        task[i]->thread.sstatus = SUM_MASK | SPIE_MASK;
+        task[i]->thread.sscratch = USER_END;
+        task[i]->pgd = (pagetable_t)kalloc(PGSIZE);
+        u_stack = (unsigned long)kalloc(PGSIZE);
+        printk("task[%d]->pgd = 0x%lx\n",i,task[i]->pgd);
+        memset(task[i]->pgd,0x0,PGSIZE);
+        create_mapping(task[i]->pgd,(unsigned long)_stext,
+                        (unsigned long)(_stext - PA2VA_OFFSET),
+                        (unsigned long)PGROUNDUP(_etext - _stext),
+                        X_MASK | R_MASK | V_MASK);
+        create_mapping(task[i]->pgd,(unsigned long)_srodata,
+                        (unsigned long)(_srodata - PA2VA_OFFSET), 
+                        (unsigned long)PGROUNDUP(_erodata - _srodata), 
+                        R_MASK | V_MASK);
+        create_mapping(task[i]->pgd,(unsigned long)_sdata,
+                        (unsigned long)(_sdata - PA2VA_OFFSET), 
+                        (unsigned long)PGROUNDUP(_edata - _sdata), 
+                        W_MASK | R_MASK | V_MASK);
+        create_mapping(task[i]->pgd,(unsigned long)_sbss,
+                        (unsigned long)(_sbss - PA2VA_OFFSET), 
+                        (unsigned long)PGROUNDUP(_ebss - _sbss), 
+                        W_MASK | R_MASK | V_MASK);
+
+        create_mapping(task[i]->pgd,(unsigned long)PGROUNDUP(_ekernel), 
+                        (unsigned long)PGROUNDUP(_ekernel - PA2VA_OFFSET),
+                        (unsigned long)( PHY_END -  PGROUNDUP(_ekernel - PA2VA_OFFSET)),
+                        W_MASK | R_MASK | V_MASK);       
+
+        create_mapping(task[i]->pgd,
+                       (unsigned long)USER_START,
+                       (unsigned long)(uapp_start - PA2VA_OFFSET),
+                       (unsigned long)PGROUNDUP(uapp_end - uapp_start),
+                       U_MASK | X_MASK  | R_MASK | V_MASK | W_MASK);
+        create_mapping(task[i]->pgd,
+                       (unsigned long)(USER_END - PGSIZE),
+                       (unsigned long)(u_stack - PA2VA_OFFSET - PGSIZE),
+                       (unsigned long)PGSIZE,
+                       U_MASK  | R_MASK | V_MASK | W_MASK);
     }
 
     printk("...proc_init done!%d\n", NR_TASKS);

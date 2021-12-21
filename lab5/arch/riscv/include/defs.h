@@ -16,9 +16,12 @@
 #define R_MASK 2
 #define W_MASK 4
 #define X_MASK 8
+#define U_MASK 16
 #define USER_START (0x0000000000000000) // user space start virtual address
 #define USER_END   (0x0000004000000000) // user space end virtual address
-
+#define SPP_MASK 1 << 8
+#define SPIE_MASK 1 << 5
+#define SUM_MASK 1 << 18
 
 
 #define csr_read(csr)                       \
