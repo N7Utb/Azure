@@ -13,9 +13,6 @@ _start:
 
     la sp, boot_stack_top
 
-    
-
-
     call setup_vm
     call relocate
     call mm_init
@@ -25,9 +22,8 @@ _start:
 
     la a0, _traps
     csrw stvec, a0
-    csrsi sstatus,2
+    # csrsi sstatus,2
     # set the first time interrupt
-    # lui a1,0x0800
     lui a1,0x0800
     rdtime a0
     add a0,a0,a1

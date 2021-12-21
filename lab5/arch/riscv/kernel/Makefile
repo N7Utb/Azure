@@ -5,7 +5,7 @@ OBJ		    = $(patsubst %.S,%.o,$(ASM_SRC)) $(patsubst %.c,%.o,$(C_SRC))
 all:$(OBJ) vmlinux.lds
 
 vmlinux.lds: vmlinux.lds.S
-	$(GCC) -E -P -I../../../include -I../include  -o $@ $^
+	$(GCC) -E -P -I../../../include -I../include   -o $@ $^
 
 %.o:%.S
 	${GCC}  ${CFLAG} -c $<

@@ -37,9 +37,6 @@ void dummy()
 }
 void task_init()
 {
-    // TODO： 4.2 修改task_init
-    // ? uapp_start和uapp_end的值
-    // ? 每个用户态进程都同一个虚拟地址？
     unsigned long u_stack = 0;
     idle = (struct task_struct *)kalloc(PGSIZE);
 
@@ -113,7 +110,7 @@ void switch_to(struct task_struct *next)
     else
     {
         current = next;
-        printk("\nswitch to [PID = %d COUNTER = %d]\n",current->pid, current->counter);
+        // printk("\nswitch to [PID = %d COUNTER = %d]\n",current->pid, current->counter);
         __switch_to(p, next);
 
         return;
